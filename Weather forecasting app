@@ -1,0 +1,49 @@
+import requests
+
+# Function to fetch weather data
+def get_weather(api_key, city):
+    base_url = "http://api.openweathermap.org/data/2.5/weather"
+    params = {
+        'q': city,
+        'appid': api_key,
+        'units': 'metric'  # To get temperature in Celsius
+    }
+    try:
+        response = requests.get(base_url, params=params)
+        response.raise_for_status()  # Raise HTTPError for bad responses
+        data = response.json()
+
+        # Extract and display relevant weather information
+        weather = {
+            "City": data['name'],
+            "Temperature": data['main']['temp'],
+            "Weather": data['weather'][0]['description'],
+            "Humidity": data['main']['humidity'],
+            "Wind Speed": data['wind']['speed']
+        }
+        return weather
+    except requests.exceptions.RequestException as e:
+        return f"Error: {e}"
+    except KeyError:
+        return "Invalid response received from the API."
+
+# Main program
+def main():
+    print("Welcome to the Weather Forecasting App!")
+    api_key = input("Enter your OpenWeatherMap API Key: ").strip()
+    while True:
+        city = input("\nEnter a city name (or type 'exit' to quit): ").strip()
+        if city.lower() == 'exit':
+            print("Thank you for using the Weather Forecasting App. Goodbye!")
+            break
+
+        weather_data = get_weather(api_key, city)
+        if isinstance(weather_data, dict):
+            print("\nWeather Information:")
+            for key, value in weather_data.items():
+                print(f"{key}: {value}")
+        else:
+            print(weather_data)
+
+if __name__ == "__main__":
+    main()
